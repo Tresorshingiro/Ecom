@@ -1,0 +1,239 @@
+.navbar{
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
+  box-shadow: 0 1px 3px -2px black;
+}
+.nav-logo{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.nav-logo img{
+  width:50px;
+  height: 50px;
+}
+.nav-logo p{
+  color: #171717;
+  font-size: 38px;
+  font-weight: 600;
+}
+.nav-menu{
+  display: flex;
+  align-items: center;
+  list-style: none;
+  gap:50px;
+  color: #626262;
+  font-size: 20px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.nav-menu hr{
+  border: none;
+  width: 80%;
+  height: 3px;
+  border-radius: 10px;
+  background: #FF4141;
+}
+.nav-login-cart{
+  display: flex;
+  align-items: center;
+  gap:45px;
+}
+.nav-login-cart button{
+  width:157px;
+  height: 58px;
+  outline: none;
+  border: 1px solid #7a7a7a;
+  border-radius: 75px;
+  color: #515151;
+  font-size: 20px;
+  font-weight: 500;
+  background: #fff;
+  cursor: pointer;
+}
+.nav-login-cart button:active{
+  background-color: #f3f3f3;
+}
+.cart{
+  width:50px;
+  height: 50px;
+}
+.nav-cart-count{
+  width: 22px;
+  height: 22px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: -35px;
+  margin-left: -55px;
+  border-radius: 11px;
+  background-color: red;
+  color: #fff;
+}
+
+/*hero page*/
+.hero{
+  height:100vh;
+  background: linear-gradient(180deg, #fde1ff, #e1ffea22 60%);
+  display: flex;
+}
+.hero-left{
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  padding-left: 180px;
+  line-height: 1.1;
+}
+.hero-left h2{
+  color: #090909;
+  font-size: 26px;
+  font-weight: 600;
+}
+.hero-left p{
+  color: #171717;
+  font-size: 100px;
+  font-weight: 700;
+}
+.hand-icon{
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.hand-icon img{
+  width: 105px;
+}
+.hero-latest-btn{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  width: 310px;
+  height: 70px;
+  border-radius: 75px;
+  margin-top: 30px;
+  background: #ff4141;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 500;
+}
+.hero-right{
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.hero-right img{
+  width: 600px;
+}
+
+/*offers page*/
+.offers{
+  width: 65%;
+  height: 60vh;
+  display: flex;
+  margin: auto;
+  padding: 0px 140px;
+  margin-bottom: 150px;
+  background: linear-gradient(180deg, #fde1ff 0%, #e1ffea22 60%);
+}
+.offers-left{
+  flex:1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.offers-left h1{
+  color: #171717;
+  font-size: 80px;
+  font-weight: 600;
+}
+.offers-left p{
+  color: #171717;
+  font-size: 22px;
+  font-weight: 600;
+}
+.offers-left button{
+  width: 282px;
+  height: 70px;
+  border-radius: 35px;
+  background: #ff4141;
+  border: none;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 500;
+  margin-top: 30px;
+  cursor: pointer;
+}
+.offers-right{
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 50px;
+}
+
+/*login signup*/
+.loginsignup{
+  width: 100%;
+  height: 100vh;
+  background: #fce3fe;
+  padding-top: 70px;
+}
+.loginsignup-container{
+  width: 580px;
+  height: 500px;
+  background: #fff;
+  margin: auto;
+  padding: 20px 40px;
+}
+.loginsignup-container h1{
+  margin: 20px 0px;
+}
+.loginsignup-fields{
+  display: flex;
+  flex-direction: column;
+  gap: 29px;
+  margin-top: 30px;
+}
+.loginsignup-fields input{
+  height: 52px;
+  width: 100%;
+  padding-left: 20px;
+  border: 1px solid #c9c9c9;
+  outline: none;
+  color: #5c5c5c;
+  font-size: 18px;
+}
+.loginsignup-container button{
+  width: 580px;
+  height: 52px;
+  color: #fff;
+  background: #ff4141;
+  margin-top: 20px;
+  border: none;
+  font-size: 24px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.loginsignup-login{
+  margin-top: 20px;
+  color: #5c5c5c;
+  font-size: 18px;
+  font-weight: 500;
+}
+.loginsignup-login span{
+  color: #FF4141;
+  font-weight: 600;
+}
+.loginsignup-agree{
+  display: flex;
+  align-items:center;
+  margin-top: 25px;
+  gap: 20px;
+  color: #5c5c5c;
+  font-size: 18px;
+  font: 500;
+}
