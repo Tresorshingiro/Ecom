@@ -9,29 +9,48 @@ const orderRoutes = require('./routes/ordersRoutes')
 const cartRoutes = require('./routes/cartRoutes')
 const reviewRoutes = require('./routes/reviewRoutes')
 const categoryRoutes = require('./routes/categoryRoutes')
+const typeRoutes = require('./routes/typeRoutes')
 const upload = require('./middleware/uploadMiddleware')
+const adminRoutes = require('./routes/adminRoutes')
+const {protect, admin} = require('./middleware/authMiddleware')
+const path = require('path')
 
 //express app
 const app = express()
+
+// Make sure process.env.JWT_SECRET is available
+if (!process.env.SECRET) {
+    console.error('FATAL ERROR: JWT_SECRET is not defined.')
+    process.exit(1)
+}
 
 //middleware
 app.use(express.json())
 app.use(cors())
 
+// Serve static files from the uploads directory
+app.use('/uploads', (req, res, next) => {
+    console.log('Accessing image:', req.url);
+    next();
+});
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 app.use((req, res, next) => {
     console.log(req.path, req.method)
     next()
 })
-app.use('/uploads', express.static('uploads'));
-// Routes with file upload mddleware
-app.post('/api/products', upload.single('image'), require('./controllers/productController').createProduct)
-//routes
+
+// Public routes (no protection needed)
+app.use('/api/admin', adminRoutes)
+
+// Protected routes
 app.use('/api/products', productsRoutes)
 app.use('/api/user', userRoutes)
 app.use('/api/order', orderRoutes)
 app.use('/api/cart', cartRoutes)
 app.use('/api/review', reviewRoutes)
 app.use('/api/category', categoryRoutes)
+app.use('/api/type', typeRoutes)
 
 //connect to db
 mongoose.connect(process.env.MONG_URI)

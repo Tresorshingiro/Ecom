@@ -1,29 +1,20 @@
 const express = require('express')
+const router = express.Router()
+const { protect, admin } = require('../middleware/authMiddleware')
 const upload = require('../middleware/uploadMiddleware')
 const {
-    getAllProducts,
-    getProductById,
+    getProducts,
+    getProduct,
     createProduct,
-    updateProductById,
-    deleteProductById
+    updateProduct,
+    deleteProduct
 } = require('../controllers/productController')
 
-const router = express.Router()
-
-//GET all Products
-router.get('/', getAllProducts)
-
-//GET single Product
-router.get('/:id', getProductById)
-
-//Post a new Product
-router.post('/', upload.single('image'), createProduct)
-
-//Update Product
-router.patch('/:id', upload.single('image'), updateProductById)
-
-//Delete a Product
-router.delete('/:id', deleteProductById)
-
+// Routes
+router.get('/', getProducts)
+router.get('/:id', getProduct)
+router.post('/', protect, admin, upload.array('images'), createProduct)
+router.patch('/:id', protect, admin, upload.array('images'), updateProduct)
+router.delete('/:id', protect, admin, deleteProduct)
 
 module.exports = router

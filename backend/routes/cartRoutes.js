@@ -1,23 +1,20 @@
 const express = require('express')
+const router = express.Router()
 const {
     addToCart,
     getUserCart,
     removeItemFromCart,
     deleteCart
 } = require('../controllers/cartController')
+const requireAuth = require('../middleware/requireAuth')
 
-const router = express.Router()
+// Protect all cart routes
+router.use(requireAuth)
 
-//add an item to the cart
+// Routes
 router.post('/', addToCart)
-
-//get user's cart
 router.get('/', getUserCart)
-
-//remove an Item from the cart
 router.delete('/item/:cartItemId', removeItemFromCart)
-
-//delete entire cart
 router.delete('/', deleteCart)
 
 module.exports = router
