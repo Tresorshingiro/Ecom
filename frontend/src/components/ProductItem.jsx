@@ -5,19 +5,32 @@ import {Link} from 'react-router-dom'
 const ProductItem = ({id, image, name, price}) => {
     const { currency } = useContext(ShopContext)
 
-    // Get the image URL, handling both array and string formats
-    const imageUrl = Array.isArray(image) ? image[0] : image;
-    
-    // Add base URL for backend images if needed
-    const fullImageUrl = imageUrl?.startsWith('http') 
-        ? imageUrl 
-        : `http://localhost:4000${imageUrl}`;
+    // Get the first image URL from array or use single image
+    const getImageUrl = () => {
+        if (Array.isArray(image)) {
+            // If image is an array, take the first image
+            return image[0]
+        } else if (typeof image === 'string') {
+            // If image is a single string
+            return image
+        }
+        return null // fallback
+    }
+
+    // Get the full image URL with backend path
+    const fullImageUrl = (() => {
+        const imageUrl = getImageUrl()
+        if (!imageUrl) return '/placeholder-image.jpg'
+        return imageUrl.startsWith('http') 
+            ? imageUrl 
+            : `http://localhost:4000${imageUrl}`
+    })()
 
     return (
         <Link className='text-gray-700 cursor-pointer' to={`/product/${id}`}>
             <div className='overflow-hidden'>
                 <img 
-                    className='hover:scale-110 transition ease-in-out' 
+                    className='hover:scale-110 transition ease-in-out w-full h-64 object-cover' 
                     src={fullImageUrl} 
                     alt={name}
                     onError={(e) => {

@@ -1,11 +1,11 @@
-import { createContext, useState, useEffect } from 'react'
+import React, { createContext, useState, useEffect } from 'react'
 import { fetchProducts } from '../services/api'
 import { toast } from 'react-toastify'
 
 export const ShopContext = createContext()
 
 const ShopContextProvider = ({ children }) => {
-  const currency = 'RWF'
+  const currency = 'RWF '
   const delivery_fee = 1000
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -162,29 +162,26 @@ const ShopContextProvider = ({ children }) => {
     return total
   }
 
-  const value = {
-    products,
-    loading,
-    error,
-    currency,
-    delivery_fee,
-    search,
-    setSearch,
-    showSearch,
-    setShowSearch,
-    cartItems,
-    addToCart,
-    updateQuantity,
-    getCartCount,
-    getCartAmount,
-    loadUserCart
-  }
-
   return (
-    <ShopContext.Provider value={value}>
+    <ShopContext.Provider value={{
+      search,
+      setSearch,
+      setShowSearch,
+      showSearch,
+      loadUserCart,
+      products,
+      loading,
+      error,
+      currency,
+      delivery_fee,
+      cartItems,
+      addToCart,
+      updateQuantity,
+      getCartCount,
+      getCartAmount
+    }}>
       {children}
     </ShopContext.Provider>
   )
 }
-
 export default ShopContextProvider

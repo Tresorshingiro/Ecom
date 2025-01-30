@@ -74,6 +74,7 @@ import contact_img from './contact_img.png'
 import razorpay_logo from './razorpay_logo.png'
 import stripe_logo from './stripe_logo.png'
 import cross_icon from './cross_icon.png'
+import momo_logo from './momo_logo.jpg'
 
 export const assets = {
     fashion,
@@ -94,7 +95,8 @@ export const assets = {
     contact_img,
     razorpay_logo,
     stripe_logo,
-    cross_icon
+    cross_icon,
+    momo_logo
 }
 
 export const products = [

@@ -1,5 +1,6 @@
-import { useState, useContext } from 'react'
+import React, { useState, useContext } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import axios from 'axios'
 import { AuthContext } from '../context/authContext'
 import { ShopContext } from '../context/ShopContext'
 import Title from '../components/Title'
@@ -30,31 +31,21 @@ const Login = () => {
       : { email, password, username }
 
     try {
-      const response = await fetch(`http://localhost:4000${endpoint}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userData)
-      })
+      const response = await axios.post(`http://localhost:4000${endpoint}`, userData)
 
-      const json = await response.json()
-
-      if (!response.ok) {
-        throw new Error(json.error || 'An error occurred')
-      }
-
-      // Save user to localStorage
-      localStorage.setItem('user', JSON.stringify(json))
+      // Save to localStorage
+      localStorage.setItem('user', JSON.stringify(response.data))
 
       // Update auth context
-      dispatch({ type: 'LOGIN', payload: json })
+      dispatch({ type: 'LOGIN', payload: response.data })
 
       // Load user's cart
-      await loadUserCart(json.token)
+      await loadUserCart(response.data.token)
 
       // Redirect to the page they tried to visit or home
       navigate(from, { replace: true })
-    } catch (err) {
-      setError(err.message)
+    } catch (error) {
+      setError(error.response?.data?.error || 'Login failed')
     } finally {
       setIsLoading(false)
     }
