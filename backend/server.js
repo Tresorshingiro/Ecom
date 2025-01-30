@@ -14,6 +14,7 @@ const upload = require('./middleware/uploadMiddleware')
 const adminRoutes = require('./routes/adminRoutes')
 const {protect, admin} = require('./middleware/authMiddleware')
 const path = require('path')
+const paymentRoutes = require('./routes/paymentRoutes')
 
 //express app
 const app = express()
@@ -51,6 +52,7 @@ app.use('/api/cart', cartRoutes)
 app.use('/api/review', reviewRoutes)
 app.use('/api/category', categoryRoutes)
 app.use('/api/type', typeRoutes)
+app.use('/api/payments', paymentRoutes)
 
 //connect to db
 mongoose.connect(process.env.MONG_URI)

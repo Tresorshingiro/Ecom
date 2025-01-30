@@ -1,19 +1,17 @@
 const express = require('express')
+const router = express.Router()
+const { protect } = require('../middleware/authMiddleware')
 const {
     createOrder,
     getUserOrders,
-    deleteOrder
-} = require('../controllers/ordersControllers')
+    getOrderById,
+    updateOrderStatus
+} = require('../controllers/ordersController')
 
-const router = express.Router()
-
-//create an order
-router.post('/', createOrder)
-
-//get user's order
-router.get('/', getUserOrders)
-
-//delete an Order
-router.delete('/:id', deleteOrder)
+// Apply requireAuth middleware to specific routes instead of using router.use()
+router.post('/', protect, createOrder)
+router.get('/', protect, getUserOrders)
+router.get('/:id', protect, getOrderById)
+router.patch('/:id/status', protect, updateOrderStatus)
 
 module.exports = router

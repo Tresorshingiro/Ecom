@@ -1,13 +1,13 @@
 const express = require('express')
 const router = express.Router()
-const {
+const { protect, admin } = require('../middleware/authMiddleware')
+const { 
     createType,
     getAllTypes,
     getTypeById,
     updateTypeById,
     deleteTypeById
 } = require('../controllers/typeController')
-const { protect, admin } = require('../middleware/authMiddleware')
 
 // Routes
 router.post('/', protect, admin, createType)

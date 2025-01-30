@@ -176,29 +176,24 @@ const deleteProduct = async (req, res) => {
     }
 }
 
-// Update product stock
+// Update stock after order
 const updateStock = async (req, res) => {
     try {
         const { id } = req.params
-        const { inventory } = req.body
+        const { quantity } = req.body
 
         const product = await Product.findById(id)
         if (!product) {
             return res.status(404).json({ error: 'Product not found' })
         }
 
-        // Update inventory quantities
-        inventory.forEach(item => {
-            const inventoryItem = product.inventory.find(i => i.size === item.size)
-            if (inventoryItem) {
-                inventoryItem.quantity = item.quantity
-            }
-        })
+        if (product.stockQuantity < quantity) {
+            return res.status(400).json({ error: 'Insufficient stock' })
+        }
 
-        // Update inStock based on total inventory
-        product.inStock = product.inventory.some(item => item.quantity > 0)
-
+        product.stockQuantity -= quantity
         await product.save()
+
         res.status(200).json(product)
     } catch (error) {
         res.status(400).json({ error: error.message })
@@ -216,11 +211,16 @@ const checkStock = async (req, res) => {
             return res.status(404).json({ error: 'Product not found' })
         }
 
-        const inventoryItem = product.inventory.find(item => item.size === size)
-        const available = inventoryItem && inventoryItem.quantity >= quantity
+        // Check if the requested quantity is available
+        const stockQuantity = product.stockQuantity
+        const available = stockQuantity >= quantity
 
-        res.status(200).json({ available })
+        res.status(200).json({ 
+            available,
+            currentStock: stockQuantity
+        })
     } catch (error) {
+        console.error('Stock check error:', error)
         res.status(400).json({ error: error.message })
     }
 }

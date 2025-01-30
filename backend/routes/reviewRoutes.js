@@ -1,18 +1,19 @@
 const express = require('express')
 const router = express.Router()
 const { protect } = require('../middleware/authMiddleware')
-
-const {
+const { 
     createReview,
     getProductReviews,
     updateReview,
-    deleteReview
+    deleteReview 
 } = require('../controllers/reviewController')
 
-// Review routes
+// Get reviews for a product
 router.get('/:productId', getProductReviews)
+
+// Protected routes
 router.post('/:productId', protect, createReview)
-router.patch('/:productId/:reviewId', protect, updateReview)
-router.delete('/:productId/:reviewId', protect, deleteReview)
+router.put('/:id', protect, updateReview)
+router.delete('/:id', protect, deleteReview)
 
 module.exports = router
