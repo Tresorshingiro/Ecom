@@ -7,16 +7,35 @@ const orderSchema = new Schema({
         ref: 'User',
         required: true
     },
-    items: {
-        type: Map,
-        of: {
-            type: Map,
-            of: Number
-        },
-        required: true
-    },
+    items: [
+        {
+            productId: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
+            size: { type: String, required: true },
+            quantity: { type: Number, required: true }
+        }
+    ],
     shippingDetails: {
-        fullName: {
+        firstName: {
+            type: String,
+            required: true
+        },
+        lastName: {
+            type: String,
+            required: true
+        },
+        email: {
+            type: String,
+            required: true
+        },
+        street: {
+            type: String,
+            required: true
+        },
+        country: {
+            type: String,
+            required: true
+        },
+        zipCode: {
             type: String,
             required: true
         },
@@ -24,17 +43,17 @@ const orderSchema = new Schema({
             type: String,
             required: true
         },
-        address: {
+        city: {
             type: String,
             required: true
         },
-        city: {
+        state: {
             type: String,
             required: true
         },
         paymentMethod: {
             type: String,
-            enum: ['momo', 'cash'],
+            enum: ['stripe', 'cash'],
             required: true
         }
     },
@@ -52,9 +71,9 @@ const orderSchema = new Schema({
         enum: ['pending', 'paid', 'failed'],
         default: 'pending'
     },
-    momoPaymentDetails: {
-        transactionId: String,
-        phoneNumber: String,
+    stripePaymentDetails: {
+        sessionId: String,
+        paymentIntentId: String,
         status: String
     }
 }, {
