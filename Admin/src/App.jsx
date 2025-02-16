@@ -28,6 +28,7 @@ const App = () => {
             <Sidebar/>
             <main className='flex-1 p-4 md:p-6 lg:p-8 overflow-auto'>
               <Routes>
+                <Route path='/' element={<Admin />}/>
                 <Route path='/addproduct' element={
                   <ProtectedRoute token={token}>
                     <AddProduct/>

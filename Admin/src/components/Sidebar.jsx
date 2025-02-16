@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { FaBox, FaList, FaSitemap, FaBars, FaTimes } from 'react-icons/fa'
+import { FaBox, FaList, FaSitemap, FaBars, FaTimes, FaHome } from 'react-icons/fa'
 
 const Sidebar = () => {
   const location = useLocation()
@@ -11,7 +11,9 @@ const Sidebar = () => {
   }
 
   const menuItems = [
+    {path: '/', icon: FaHome, label: 'Dashboard'},
     { path: '/list', icon: FaBox, label: 'Products' },
+    { path: '/orders', icon: FaList, label: 'Orders'},
     { path: '/categories', icon: FaList, label: 'Categories' },
     { path: '/type', icon: FaSitemap, label: 'Type' },
   ]
