@@ -7,7 +7,12 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     define: {
-      'process.env': env, // Ensure env variables are available
+      'process.env': env,
+    },
+    resolve: {
+      alias: {
+        'react-router': 'react-router-dom'
+      }
     },
     server: {
       proxy: {
