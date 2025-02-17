@@ -76,7 +76,7 @@ import stripe_logo from './stripe_logo.png'
 import cross_icon from './cross_icon.png'
 import momo_logo from './momo_logo.jpg'
 import collection from './collection.jpg'
-import heroImage from './heroImage.jpg'
+import heroImage from './heroimage.jpg'
 
 export const assets = {
     fashion,
