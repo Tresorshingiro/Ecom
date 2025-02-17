@@ -5,6 +5,7 @@ import { toast } from 'react-toastify'
 export const ShopContext = createContext()
 
 const ShopContextProvider = ({ children }) => {
+  const backendURL = "https://umuheto-backend.onrender.com"
   const currency = 'RWF '
   const delivery_fee = 1000
   const [products, setProducts] = useState([])
@@ -33,7 +34,7 @@ const ShopContextProvider = ({ children }) => {
   // Load user's cart from backend
   const loadUserCart = async (token) => {
     try {
-      const response = await fetch('http://localhost:4000/api/cart', {
+      const response = await fetch(`${backendURL}/api/cart`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -50,7 +51,7 @@ const ShopContextProvider = ({ children }) => {
   // Save cart to backend
   const saveCartToBackend = async (token, cartData) => {
     try {
-      await fetch('http://localhost:4000/api/cart', {
+      await fetch(`${backendURL}/api/cart`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -78,7 +79,7 @@ const ShopContextProvider = ({ children }) => {
 
     try {
       // Check stock availability first
-      const response = await fetch(`http://localhost:4000/api/products/${itemId}/check-stock`, {
+      const response = await fetch(`${backendURL}/api/products/${itemId}/check-stock`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

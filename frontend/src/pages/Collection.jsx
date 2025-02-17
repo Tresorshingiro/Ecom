@@ -6,6 +6,7 @@ import Title from '../components/Title'
 import ProductItem from '../components/ProductItem'
 
 const Collection = () => {
+  const backendURL = "https://umuheto-backend.onrender.com"
   const { products, search, showSearch, loading, error } = useContext(ShopContext)
   const [showFilter, setShowFilter] = useState(false)
   const [filterProducts, setFilterProducts] = useState([])

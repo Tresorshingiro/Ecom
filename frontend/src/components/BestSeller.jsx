@@ -4,6 +4,8 @@ import Title from '../components/Title'
 import ProductItem from './ProductItem'
 
 const BestSeller = () => {
+    const backendURL = "https://umuheto-backend.onrender.com";
+    console.log("Backend URL:", backendURL);
     const [bestSellers, setBestSellers] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
@@ -11,10 +13,10 @@ const BestSeller = () => {
     useEffect(() => {
         const fetchBestSellers = async () => {
             try {
-                const response = await axios.get('http://localhost:4000/api/products')
+                const response = await axios.get(`${backendURL}/api/products`)
                 // Filter products where bestSeller is true and limit to 5 items
                 const bestSellerProducts = response.data
-                    .filter(product => product.bestSeller)
+                    .filter(product => product.bestSeller === true)
                     .slice(0, 5)
                 setBestSellers(bestSellerProducts)
                 setLoading(false)

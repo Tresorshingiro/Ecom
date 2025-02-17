@@ -4,6 +4,7 @@ import { AuthContext } from '../context/authContext'
 import Title from '../components/Title'
 
 const Orders = () => {
+  const backendURL = "https://umuheto-backend.onrender.com"
   const { currency } = useContext(ShopContext)
   const { user } = useContext(AuthContext)
   const [orders, setOrders] = useState([])
@@ -13,13 +14,14 @@ const Orders = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await fetch('http://localhost:4000/api/order', {
+        const response = await fetch(`${backendURL}/api/order`, {
           headers: {
             'Authorization': `Bearer ${user.token}`
           }
         })
         if (!response.ok) throw new Error('Failed to fetch orders')
         const data = await response.json()
+        console.log('Order Data:', data);
         setOrders(data)
         setLoading(false)
       } catch (err) {
@@ -87,62 +89,68 @@ const Orders = () => {
       </div>
 
       <div className='space-y-6'>
-        {orders.map((order) => (
-          <div key={order._id} className='border rounded-lg overflow-hidden'>
-            <div className='bg-gray-50 p-4 border-b'>
-              <div className='flex justify-between items-center'>
-                <p className='text-sm font-medium'>Order #{order._id.slice(-8)}</p>
-                <p className='text-sm text-gray-600'>
-                  Placed on {formatDate(order.createdAt)}
-                </p>
+      {orders.map((order) => (
+      <div key={order._id} className='border rounded-lg overflow-hidden'>
+       <div className='bg-gray-50 p-4 border-b'>
+        <div className='flex justify-between items-center'>
+        <p className='text-sm font-medium'>Order #{order._id.slice(-8)}</p>
+        <p className='text-sm text-gray-600'>
+          Placed on {formatDate(order.createdAt)}
+        </p>
+       </div>
+      </div>
+
+    {(order.items || []).map((item) => {
+      const status = getOrderStatus(order.status);
+      const productName = item.productId?.name || 'Product no longer available';
+      const productPrice = item.productId?.price || 0;
+      const productImage = item.productId?.images?.[0] 
+        ? `http://localhost:4000${item.productId.images[0]}`
+        : '/placeholder-image.jpg';
+
+      return (
+        <div key={`${order._id}-${item.productId?._id || 'deleted'}-${item.size}`} 
+             className='py-4 px-4 border-b text-gray-700 flex flex-col md:flex-row md:items-center md:justify-between gap-4'>
+          <div className='flex items-start gap-6 text-sm'>
+            <img 
+              className='w-16 sm:w-20' 
+              src={productImage} 
+              alt={productName}
+            />
+            <div>
+              <p className='sm:text-base font-medium'>{productName}</p>
+              <div className='flex items-center gap-3 mt-2 text-base text-gray-700'>
+                <p className='text-lg'>{currency}{productPrice}</p>
+                <p>Quantity: {item.quantity}</p>
+                <p>Size: {item.size}</p>
               </div>
             </div>
-
-            {order.orderItems.map((item) => {
-              const status = getOrderStatus(order.status)
-              return (
-                <div key={`${order._id}-${item.product._id}-${item.size}`} 
-                     className='py-4 px-4 border-b text-gray-700 flex flex-col md:flex-row md:items-center md:justify-between gap-4'>
-                  <div className='flex items-start gap-6 text-sm'>
-                    <img 
-                      className='w-16 sm:w-20' 
-                      src={`http://localhost:4000${item.product.images[0]}`} 
-                      alt={item.product.name}
-                    />
-                    <div>
-                      <p className='sm:text-base font-medium'>{item.product.name}</p>
-                      <div className='flex items-center gap-3 mt-2 text-base text-gray-700'>
-                        <p className='text-lg'>{currency}{item.product.price}</p>
-                        <p>Quantity: {item.quantity}</p>
-                        <p>Size: {item.size}</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className='md:w-1/3 flex justify-between items-center'>
-                    <div className='flex items-center gap-2'>
-                      <div className={`w-2 h-2 rounded-full ${status.color}`}></div>
-                      <p className='text-sm md:text-base'>{status.text}</p>
-                    </div>
-                    {order.status === 'shipped' && (
-                      <button 
-                        onClick={() => window.open(order.trackingUrl, '_blank')}
-                        className='border px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-50'
-                      >
-                        Track Order
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )
-            })}
-
-            <div className='bg-gray-50 p-4 flex justify-between items-center'>
-              <p className='text-sm font-medium'>Total Amount:</p>
-              <p className='text-lg font-medium'>{currency}{order.totalPrice}</p>
-            </div>
           </div>
-        ))}
+          
+          <div className='md:w-1/3 flex justify-between items-center'>
+            <div className='flex items-center gap-2'>
+              <div className={`w-2 h-2 rounded-full ${status.color}`}></div>
+              <p className='text-sm md:text-base'>{status.text}</p>
+            </div>
+            {order.status === 'shipped' && (
+              <button 
+                onClick={() => window.open(order.trackingUrl, '_blank')}
+                className='border px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-50'
+              >
+                Track Order
+              </button>
+            )}
+          </div>
+        </div>
+      );
+    })}
+
+    <div className='bg-gray-50 p-4 flex justify-between items-center'>
+      <p className='text-sm font-medium'>Total Amount:</p>
+      <p className='text-lg font-medium'>{currency}{order.totalAmount}</p>
+    </div>
+  </div>
+))}
       </div>
     </div>
   )

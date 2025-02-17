@@ -6,6 +6,7 @@ import { ShopContext } from '../context/ShopContext'
 import { useNavigate } from 'react-router-dom'
 
 const Cart = () => {
+  const backendURL = "https://umuheto-backend.onrender.com"
   const { products, currency, cartItems, updateQuantity } = useContext(ShopContext)
   const [cartData, setCartData] = useState([])
   const [loading, setLoading] = useState(true)
@@ -59,7 +60,7 @@ const Cart = () => {
     if (!imagePath) return '/placeholder-image.jpg';
     return imagePath.startsWith('http') 
       ? imagePath 
-      : `http://localhost:4000${imagePath}`;
+      : `${backendURL}${imagePath}`;
   };
 
   return (
@@ -119,7 +120,7 @@ const Cart = () => {
           </div>
         ))}
       </div>
-
+     
       <CartTotal cartItems={cartData} />
 
       <div className='flex justify-end mt-8'>

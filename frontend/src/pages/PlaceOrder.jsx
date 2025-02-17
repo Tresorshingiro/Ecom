@@ -5,258 +5,187 @@ import { AuthContext } from '../context/authContext'
 import { toast } from 'react-toastify'
 import Title from '../components/Title'
 import { assets } from '../assets/assets'
+import CartTotal from '../components/CartTotal'
 
 const PlaceOrder = () => {
+    const backendURL = "https://umuheto-backend.onrender.com"
     const { cartItems, getCartAmount, delivery_fee, currency } = useContext(ShopContext)
     const { user } = useContext(AuthContext)
     const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
-    const [formData, setFormData] = useState({
-        fullName: '',
-        phone: '',
-        address: '',
-        city: '',
-        paymentMethod: 'momo' // Default to Mobile Money
-    })
     const [paymentProcessing, setPaymentProcessing] = useState(false)
+
+    const [formData, setFormData] = useState({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        city: '',
+        street: '',
+        state: '',
+        country: '',
+        zipcode: '',
+        paymentMethod: 'cash' // Default to cash
+    })
 
     const handlePayment = async (orderId) => {
         try {
-            setPaymentProcessing(true)
-            // Initiate MOMO payment
-            const response = await fetch(`http://localhost:4000/api/payments/momo/initiate/${orderId}`, {
+            setPaymentProcessing(true);
+            
+            // Initiate Stripe checkout session
+            const stripeResponse = await fetch(`${backendURL}/api/payments/stripe/create-checkout-session`, {
                 method: 'POST',
                 headers: {
+                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${user.token}`
-                }
-            })
-            
-            if (!response.ok) {
-                throw new Error('Failed to initiate payment')
+                },
+                body: JSON.stringify({ orderId, items: cartItems, totalAmount: getCartAmount() + delivery_fee })
+            });
+    
+            if (!stripeResponse.ok) {
+                throw new Error('Failed to initiate Stripe payment');
             }
-
-            const { referenceId } = await response.json()
-            
-            // Start polling for payment status
-            const checkStatus = async () => {
-                const statusResponse = await fetch(`http://localhost:4000/api/payments/momo/status/${orderId}`, {
-                    headers: {
-                        'Authorization': `Bearer ${user.token}`
-                    }
+    
+            const { sessionId, sessionUrl } = await stripeResponse.json();
+    
+            // Update order with Stripe session details before redirecting
+            await fetch(`${backendURL}/api/order/${orderId}/update-payment`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user.token}`
+                },
+                body: JSON.stringify({
+                    stripePaymentDetails: { sessionId, status: 'pending' }
                 })
-                const { status } = await statusResponse.json()
-                
-                if (status === 'SUCCESSFUL') {
-                    toast.success('Payment successful!')
-                    navigate('/orders')
-                } else if (status === 'FAILED') {
-                    toast.error('Payment failed')
-                } else if (status === 'PENDING') {
-                    // Continue polling
-                    setTimeout(checkStatus, 5000)
-                }
-            }
-
-            // Start checking status after 5 seconds
-            setTimeout(checkStatus, 5000)
-            
-            toast.info('Please check your phone to complete the payment')
+            });
+    
+            // Redirect to Stripe Checkout page
+            window.location.href = sessionUrl;
+    
         } catch (error) {
-            toast.error(error.message)
+            toast.error(error.message);
         } finally {
-            setPaymentProcessing(false)
+            setPaymentProcessing(false);
         }
-    }
-
+    };
+    
     const handleSubmit = async (e) => {
-        e.preventDefault()
-        setLoading(true)
-
+        e.preventDefault();
+        setLoading(true);
+    
         try {
-            // Validate phone number for MTN MOMO
-            if (formData.paymentMethod === 'momo') {
-                const momoRegex = /^(?:25)?07[238]\d{7}$/
-                if (!momoRegex.test(formData.phone)) {
-                    toast.error('Please enter a valid MTN phone number')
-                    setLoading(false)
-                    return
-                }
+            // Ensure all required fields are filled
+            if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone || !formData.city || !formData.street || !formData.state || !formData.country || !formData.zipcode) {
+                throw new Error('Please fill all the required fields');
             }
-
-            // Check stock availability
-            for (const [productId, sizes] of Object.entries(cartItems)) {
-                for (const [size, quantity] of Object.entries(sizes)) {
-                    const response = await fetch(`http://localhost:4000/api/products/${productId}/check-stock`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${user.token}`
-                        },
-                        body: JSON.stringify({ size, quantity })
-                    })
-                    const { available } = await response.json()
-                    if (!available) {
-                        toast.error('Some items in your cart are no longer available')
-                        return
-                    }
-                }
-            }
-
+    
+            // Transform cartItems object into an array
+            const itemsArray = Object.keys(cartItems).flatMap(itemId => {
+                const sizes = cartItems[itemId];
+                return Object.keys(sizes).map(size => ({
+                    productId: itemId, // Ensure this matches the backend expectation
+                    size: size,        // Ensure this matches the backend expectation
+                    quantity: sizes[size]
+                }));
+            });
+    
             // Place the order
-            const response = await fetch('http://localhost:4000/api/orders', {
+            const response = await fetch(`${backendURL}/api/order`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${user.token}`
                 },
                 body: JSON.stringify({
-                    items: cartItems,
-                    shippingDetails: formData,
+                    items: itemsArray,
+                    shippingDetails: {
+                        firstName: formData.firstName,
+                        lastName: formData.lastName,
+                        email: formData.email,
+                        phone: formData.phone,
+                        city: formData.city,
+                        street: formData.street,
+                        state: formData.state,
+                        country: formData.country,
+                        zipCode: formData.zipcode, // Ensure this matches the backend expectation
+                        paymentMethod: formData.paymentMethod
+                    },
                     totalAmount: getCartAmount() + delivery_fee
                 })
-            })
-
+            });
+    
             if (!response.ok) {
-                throw new Error('Failed to place order')
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to place order');
             }
-
-            const order = await response.json()
-
-            if (formData.paymentMethod === 'momo') {
-                await handlePayment(order._id)
+    
+            const order = await response.json();
+    
+            if (formData.paymentMethod === 'stripe') {
+                await handlePayment(order._id); // Ensure order ID is passed to Stripe payment
             } else {
-                // Cash on delivery
-                toast.success('Order placed successfully!')
-                navigate('/orders')
+                toast.success('Order placed successfully! You will pay on delivery.');
+                navigate('/orders');
             }
         } catch (error) {
-            toast.error(error.message)
+            toast.error(error.message);
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }
+    };
+    
+    
 
     return (
-        <div className="max-w-2xl mx-auto mt-10 p-6">
-            <div className="mb-8">
-                <Title text1="CHECKOUT" text2="DETAILS" />
+        <div className="flex flex-col sm:flex-row justify-between gap-4 pt-5 sm:pt-14 min-h-[80vh] border-t">
+        <div className='flex flex-col gap-4 w-full sm:max-w-[480px]'>
+            <div className='text-xl sm:text2xl my-3'>
+                <Title text1={'DELIVERY'} text2={'INFORMATION'}/> 
             </div>
-            
-            <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Personal Information */}
-                <div className="bg-white p-6 rounded-lg shadow">
-                    <h2 className="text-lg font-medium mb-4">Personal Information</h2>
-                    <div className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Full Name</label>
-                                <input
-                                    type="text"
-                                    required
-                                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-black focus:outline-none"
-                                    value={formData.fullName}
-                                    onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Phone Number (MTN)</label>
-                                <input
-                                    type="tel"
-                                    required
-                                    placeholder="07X XXX XXXX"
-                                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-black focus:outline-none"
-                                    value={formData.phone}
-                                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                                />
-                            </div>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Delivery Address</label>
-                            <input
-                                type="text"
-                                required
-                                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-black focus:outline-none"
-                                value={formData.address}
-                                onChange={(e) => setFormData({...formData, address: e.target.value})}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">City/District</label>
-                            <input
-                                type="text"
-                                required
-                                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-black focus:outline-none"
-                                value={formData.city}
-                                onChange={(e) => setFormData({...formData, city: e.target.value})}
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Payment Method */}
-                <div className="bg-white p-6 rounded-lg shadow">
-                    <h2 className="text-lg font-medium mb-4">Payment Method</h2>
-                    <div className="space-y-4">
-                        <div className="flex items-center space-x-3 p-3 border rounded-md bg-yellow-50">
-                            <input
-                                type="radio"
-                                id="momo"
-                                name="paymentMethod"
-                                value="momo"
-                                checked={formData.paymentMethod === 'momo'}
-                                onChange={(e) => setFormData({...formData, paymentMethod: e.target.value})}
-                                className="h-4 w-4 text-yellow-600"
-                            />
-                            <label htmlFor="momo" className="flex items-center space-x-3">
-                                <span className="font-medium text-gray-900">MTN Mobile Money</span>
-                                <img src={assets.momo_logo} alt="MTN MOMO" className="h-8" />
-                            </label>
-                        </div>
-                        
-                        <div className="flex items-center space-x-3 p-3 border rounded-md">
-                            <input
-                                type="radio"
-                                id="cash"
-                                name="paymentMethod"
-                                value="cash"
-                                checked={formData.paymentMethod === 'cash'}
-                                onChange={(e) => setFormData({...formData, paymentMethod: e.target.value})}
-                                className="h-4 w-4"
-                            />
-                            <label htmlFor="cash" className="text-gray-900">Cash on Delivery</label>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Order Summary */}
-                <div className="bg-white p-6 rounded-lg shadow">
-                    <h2 className="text-lg font-medium mb-4">Order Summary</h2>
-                    <div className="space-y-2">
-                        <div className="flex justify-between text-gray-600">
-                            <span>Subtotal</span>
-                            <span>{currency}{getCartAmount()}</span>
-                        </div>
-                        <div className="flex justify-between text-gray-600">
-                            <span>Delivery Fee</span>
-                            <span>{currency}{delivery_fee}</span>
-                        </div>
-                        <div className="h-px bg-gray-200 my-2"></div>
-                        <div className="flex justify-between font-medium text-lg">
-                            <span>Total</span>
-                            <span>{currency}{getCartAmount() + delivery_fee}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-black text-white py-3 rounded-md hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    {loading ? 'Processing...' : `Pay ${currency}${getCartAmount() + delivery_fee}`}
-                </button>
-            </form>
+            <div className='flex gap-3'>
+                <input className='border border-gray-300 rounded py-1.5 px-3.5 w-full' type='text' placeholder='First name' value={formData.firstName} onChange={(e) => setFormData({...formData, firstName:e.target.value})}/>
+                <input className='border border-gray-300 rounded py-1.5 px-3.5 w-full' type='text' placeholder='Last name' value={formData.lastName} onChange={(e) => setFormData({...formData, lastName:e.target.value})}/>
+            </div>
+            <div className='flex gap-3'>
+              <input className='border border-gray-300 rounded py-1.5 px-3.5 w-full' type='email' placeholder='Email address' value={formData.email} onChange={(e) => setFormData({...formData, email:e.target.value})}/>
+              <input className='border border-gray-300 rounded py-1.5 px-3.5 w-full' type='text' placeholder='Street' value={formData.street} onChange={(e) => setFormData({...formData, street:e.target.value})}/> 
+            </div>
+            <div className='flex gap-3'>
+                <input className='border border-gray-300 rounded py-1.5 px-3.5 w-full' type='text' placeholder='City' value={formData.city} onChange={(e) => setFormData({...formData, city:e.target.value})}/>
+                <input className='border border-gray-300 rounded py-1.5 px-3.5 w-full' type='text' placeholder='State' value={formData.state} onChange={(e) => setFormData({...formData, state:e.target.value})}/>
+            </div>
+            <div className='flex gap-3'>
+                <input className='border border-gray-300 rounded py-1.5 px-3.5 w-full' type='number' placeholder='Zipcode' value={formData.zipcode} onChange={(e) => setFormData({...formData, zipcode:e.target.value})}/>
+                <input className='border border-gray-300 rounded py-1.5 px-3.5 w-full' type='text' placeholder='Country' value={formData.country} onChange={(e) => setFormData({...formData, country:e.target.value})}/>
+            </div>
+            <input className='border border-gray-300 rounded py-1.5 px-3.5 w-full' type='number' placeholder='Phone' value={formData.phone} onChange={(e) => setFormData({...formData, phone:e.target.value})}/>
         </div>
+        {/*----right side----*/}
+        <div className='mt-8'>
+          <div className='mt-8 min-w-80'>
+            <CartTotal/>
+          </div>
+
+            <div className='mt-12'>
+                <Title text1={'PAYMENT'} text2={'METHOD'}/>
+                <div className='flex gap-3 flex-col lg:flex-row'>
+                    <div className={`flex items-center gap-3 border p-2 px-3 cursor-pointer ${formData.paymentMethod === 'stripe' ? 'border-green-500' : ''}`} onClick={() => setFormData({ ...formData, paymentMethod: 'stripe' })}>
+                        <p className={`min-w-3.5 h-3.5 border rounded-full`}></p>
+                        <img src={assets.stripe_logo} alt=""/>
+                    </div>
+                    <div className={`flex items-center gap-3 border p-2 px-3 cursor-pointer ${formData.paymentMethod === 'cash' ? 'border-green-500' : ''}`} onClick={() => setFormData({ ...formData, paymentMethod: 'cod' })}>
+                        <p className={`min-w-3.5 h-3.5 border rounded-full`}></p>
+                        <p className='text-gray-500 text-sm font-medium mx-4'>CASH ON DELIVERY</p>
+                    </div>
+                </div>
+
+                <div className='w-full text-end mt-8'>
+                    <button className='bg-black text-white px-16 py-3 text-sm' onClick={handleSubmit} disabled={loading}>PLACE ORDER</button>
+                </div>
+            </div>
+        </div>
+    </div>
     )
 }
 

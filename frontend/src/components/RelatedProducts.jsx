@@ -4,6 +4,7 @@ import Title from '../components/Title'
 import ProductItem from './ProductItem'
 
 const RelatedProducts = ({ category, type, productId }) => {
+    const backendURL = "https://umuheto-backend.onrender.com"
     const [related, setRelated] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
@@ -12,7 +13,7 @@ const RelatedProducts = ({ category, type, productId }) => {
         const fetchRelatedProducts = async () => {
             try {
                 // Fetch all products
-                const response = await axios.get('http://localhost:4000/api/products')
+                const response = await axios.get(`${backendURL}/api/products`)
                 
                 // Filter products by category and type
                 const relatedProducts = response.data

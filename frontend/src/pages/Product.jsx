@@ -7,6 +7,7 @@ import { fetchProductById } from '../services/api'
 import { toast } from 'react-toastify'
 
 const Product = () => {
+  const backendURL = "https://umuheto-backend.onrender.com"
   const { productId } = useParams()
   const { currency, addToCart } = useContext(ShopContext)
   const [productData, setProductData] = useState(null)
@@ -99,7 +100,7 @@ const Product = () => {
   const fullImageUrl = (imgPath) => {
     return imgPath?.startsWith('http') 
       ? imgPath 
-      : `http://localhost:4000${imgPath}`
+      : `${backendURL}${imgPath}`
   }
 
   return (

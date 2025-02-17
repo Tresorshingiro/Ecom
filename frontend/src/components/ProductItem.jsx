@@ -3,6 +3,7 @@ import { ShopContext } from '../context/ShopContext'
 import {Link} from 'react-router-dom'
 
 const ProductItem = ({id, image, name, price}) => {
+    const backendURL = "https://umuheto-backend.onrender.com"
     const { currency } = useContext(ShopContext)
 
     // Get the first image URL from array or use single image
@@ -23,7 +24,7 @@ const ProductItem = ({id, image, name, price}) => {
         if (!imageUrl) return '/placeholder-image.jpg'
         return imageUrl.startsWith('http') 
             ? imageUrl 
-            : `http://localhost:4000${imageUrl}`
+            : `${backendURL}${imageUrl}`
     })()
 
     return (

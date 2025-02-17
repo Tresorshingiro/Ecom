@@ -6,6 +6,7 @@ import { ShopContext } from '../context/ShopContext'
 import Title from '../components/Title'
 
 const Login = () => {
+  const backendURL = "https://umuheto-backend.onrender.com"
   const [currentState, setCurrentState] = useState('Login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -31,7 +32,7 @@ const Login = () => {
       : { email, password, username }
 
     try {
-      const response = await axios.post(`http://localhost:4000${endpoint}`, userData)
+      const response = await axios.post(`${backendURL}${endpoint}`, userData)
 
       // Save to localStorage
       localStorage.setItem('user', JSON.stringify(response.data))
