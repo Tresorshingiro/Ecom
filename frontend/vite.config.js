@@ -10,9 +10,7 @@ export default defineConfig(({ mode }) => {
       'process.env': env,
     },
     resolve: {
-      alias: {
-        'react-router': 'react-router-dom'
-      }
+      extensions: ['.js', '.jsx', '.json'], // Correctly placed
     },
     server: {
       proxy: {
