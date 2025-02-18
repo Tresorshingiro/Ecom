@@ -105,7 +105,7 @@ const Orders = () => {
       const productName = item.productId?.name || 'Product no longer available';
       const productPrice = item.productId?.price || 0;
       const productImage = item.productId?.images?.[0] 
-        ? `http://localhost:4000${item.productId.images[0]}`
+        ? `${backendURL}${item.productId.images[0]}`
         : '/placeholder-image.jpg';
 
       return (

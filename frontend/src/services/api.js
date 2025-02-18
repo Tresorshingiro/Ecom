@@ -18,7 +18,6 @@ const handleResponse = async (response) => {
 // Products
 export const fetchProducts = async () => {
   try {
-    console.log('Fetching from URL:', `${BASE_URL}/products`); // Debug log
     
     const response = await fetch(`${BASE_URL}/products`, {
       headers: {
