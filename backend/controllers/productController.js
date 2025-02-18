@@ -48,7 +48,7 @@ const getProduct = async (req, res) => {
         const transformedProduct = {
             ...product.toObject(),
             images: product.images.map(image => 
-                image.startsWith('http') ? image : image.startsWith('/uploads/') ? `http://localhost:4000${image}` : `http://localhost:4000/uploads/${image}`
+                image.startsWith('http') ? image : image.startsWith('/uploads/') ? `https://umuheto-backend.onrender.com${image}` : `https://umuheto-backend.onrender.com/uploads/${image}`
             )
         }
         
@@ -98,7 +98,7 @@ const createProduct = async (req, res) => {
         const transformedProduct = {
             ...product.toObject(),
             images: product.images.map(image => 
-                image.startsWith('http') ? image : `http://localhost:4000${image}`
+                image.startsWith('http') ? image : `https://umuheto-backend.onrender.com${image}`
             )
         }
 
@@ -149,7 +149,7 @@ const updateProduct = async (req, res) => {
         const transformedProduct = {
             ...product.toObject(),
             images: product.images.map(image => 
-                image.startsWith('http') ? image : `http://localhost:4000${image}`
+                image.startsWith('http') ? image : `https://umuheto-backend.onrender.com${image}`
             )
         }
 
