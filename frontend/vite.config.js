@@ -10,7 +10,16 @@ export default defineConfig(({ mode }) => {
       'process.env': env,
     },
     resolve: {
-      extensions: ['.js', '.jsx', '.json'], // Correctly placed
+      extensions: ['.js', '.jsx', '.json'],
+      dedupe: ['react', 'react-dom', 'react-router-dom'],
+      alias: {
+        'react-router': 'react-router-dom',
+      }
+    },
+    build: {
+      commonjsOptions: {
+        include: [/node_modules/],
+      },
     },
     server: {
       proxy: {
