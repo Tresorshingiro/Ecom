@@ -12,9 +12,15 @@ export default defineConfig(({ mode }) => {
     resolve: {
       extensions: ['.js', '.jsx', '.json'],
       dedupe: ['react', 'react-dom', 'react-router-dom'],
-      alias: {
-        'react-router': 'react-router-dom',
-      }
+    },
+    optimizeDeps: {
+      include: ['react-router-dom'],
+      esbuildOptions: {
+        // Node.js global to browser globalThis
+        define: {
+          global: 'globalThis',
+        },
+      },
     },
     build: {
       commonjsOptions: {
