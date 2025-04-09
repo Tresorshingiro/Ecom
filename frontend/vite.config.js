@@ -12,15 +12,10 @@ export default defineConfig(({ mode }) => {
     resolve: {
       extensions: ['.js', '.jsx', '.json'],
       dedupe: ['react', 'react-dom', 'react-router-dom'],
-    },
-    optimizeDeps: {
-      include: ['react-router-dom'],
-      esbuildOptions: {
-        // Node.js global to browser globalThis
-        define: {
-          global: 'globalThis',
-        },
-      },
+      alias: {
+        // This is the key fix - redirect react-router imports to react-router-dom
+        'react-router': 'react-router-dom',
+      }
     },
     build: {
       commonjsOptions: {
