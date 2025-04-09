@@ -11,16 +11,6 @@ export default defineConfig(({ mode }) => {
     },
     resolve: {
       extensions: ['.js', '.jsx', '.json'],
-      dedupe: ['react', 'react-dom'],
-      alias: {
-        'react-router': 'react-router-dom',
-      }
-    },
-    optimizeDeps: {
-      include: ['react-router-dom'],
-      esbuildOptions: {
-        target: 'es2020'
-      }
     },
     build: {
       outDir: 'dist',
@@ -32,7 +22,7 @@ export default defineConfig(({ mode }) => {
           warn(warning);
         }
       }
-    }, 
+    },
     server: {
       proxy: {
         '/api': {
