@@ -11,17 +11,28 @@ export default defineConfig(({ mode }) => {
     },
     resolve: {
       extensions: ['.js', '.jsx', '.json'],
-      dedupe: ['react', 'react-dom', 'react-router-dom'],
+      dedupe: ['react', 'react-dom'],
       alias: {
-        // This is the key fix - redirect react-router imports to react-router-dom
         'react-router': 'react-router-dom',
       }
     },
-    build: {
-      commonjsOptions: {
-        include: [/node_modules/],
-      },
+    optimizeDeps: {
+      include: ['react-router-dom'],
+      esbuildOptions: {
+        target: 'es2020'
+      }
     },
+    build: {
+      outDir: 'dist',
+      target: 'es2020',
+      minify: 'esbuild',
+      rollupOptions: {
+        onwarn(warning, warn) {
+          if (warning.code === 'MODULE_LEVEL_DIRECTIVE') return;
+          warn(warning);
+        }
+      }
+    }, 
     server: {
       proxy: {
         '/api': {
